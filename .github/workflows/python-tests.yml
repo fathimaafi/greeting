@@ -18,6 +18,15 @@ jobs:
       with:
         python-version: '3.x'
 
+    -name: Install Pylint
+      run: |
+        python.exe -m pip install --upgrade pip
+        pip install pylint
+
+    -name: Run Pylint
+      run: |
+        pylint greeter.py test_greet.py
+        
     - name: Run tests
       run: |
         python -m unittest discover -v greeter
