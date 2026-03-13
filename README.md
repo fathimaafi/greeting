@@ -1,3 +1,5 @@
+[![Greeting Tests](https://github.com/fathimaafi/greeting/actions/workflows/python-tests.yml/badge.svg)](https://github.com/fathimaafi/greeting/actions/workflows/python-tests.yml)
+
 # Greeter Project
 
 A simple Python project that greets users and includes automated tests. It features a basic command-line interface and a modular `greet` function.
