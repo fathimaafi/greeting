@@ -40,10 +40,10 @@ jobs:
         username: ${{ secrets.EMAIL_USERNAME }}
         password: ${{ secrets.EMAIL_PASSWORD }}
         from: Github Actions <${{ secrets.EMAIL_USERNAME }}>
+        to: ${{ secrets.EMAIL_RECIPIENT }}
         subject: "Workflow Failed: ${{ github.repository }} - ${{ github.workflow }}"
         body: |
             The workflow "${{ github.workflow }}" in the repository "${{ github.repository }}" has failed on branch "${{ github.ref_name }}".
             Commit: ${{ github.sha }}
             Triggered by: ${{ github.actor }}
             Please check the details at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-        to: ${{ secrets.EMAIL_RECIPIENT }}
