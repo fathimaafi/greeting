@@ -48,6 +48,23 @@ To run Pylint on the project files, follow these steps:
 ## GitHub Actions
 The project includes a GitHub Action workflow located in `.github/workflows/python-tests.yml`. This workflow automatically runs the tests and performs linting on every push to the `main` branch or when a pull request is created. This ensures that the codebase remains stable and follows quality standards.
 
+### Triggering the Workflow Manually
+You can also manually run the GitHub Actions workflow from the GitHub repository:
+1. Navigate to the **Actions** tab in your repository.
+2. Select the **Greeting Tests** workflow from the left sidebar.
+3. Click the **Run workflow** dropdown button.
+4. Select the branch you want to run the workflow on and click **Run workflow**.
+
+### Failure Notifications
+If the CI workflow fails (either during linting or unit tests), an automated notification email will be sent to the designated recipient.
+
+To enable this feature, the following **Secrets** must be configured in the GitHub repository (`Settings > Secrets and variables > Actions`):
+- `EMAIL_USERNAME`: The SMTP sender email address (e.g., a Gmail address).
+- `EMAIL_PASSWORD`: The app password or credentials for the SMTP account.
+- `EMAIL_RECIPIENT`: The email address that should receive the failure reports.
+
+The workflow uses these secrets with the `dawidd6/action-send-mail` action to provide immediate alerts for failed builds.
+
 ## Pull Requests and CI
 To maintain the quality of the project, all changes should be submitted through Pull Requests (PRs).
 
