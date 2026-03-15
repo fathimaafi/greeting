@@ -10,6 +10,7 @@ A simple Python project that greets users and includes automated tests. It featu
 - `test_greet.py`: Unit tests using the `unittest` framework to verify the greeting logic.
 - `.github/workflows/python-tests.yml`: GitHub Actions workflow configuration for automated testing and linting.
 
+
 ## How to Run Locally
 
 ### 1. Run the Greeter Script
