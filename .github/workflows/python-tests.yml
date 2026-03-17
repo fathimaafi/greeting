@@ -33,8 +33,7 @@ jobs:
     - name: Run tests
       id: tests
       run: |
-        python -m pytest test_greet.py -v 2>&1 | tee test-results.txt
-        cat test-results.txt
+        python -m pytest test_greet.py -v 2>&1 | tee test-results.txt; exit ${PIPESTATUS[0]}
 
     - name: Upload test results
       if: always()
