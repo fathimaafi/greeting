@@ -1,8 +1,8 @@
 """A simple greeter module that provides a function to greet a user by name."""
 def greet(name):
     """Function to greet a user by name."""
-    return f"Hi, {name}!"
+    return f"Hello, {name}!"
 
-# if __name__ == "__main__":
-username = input("Enter your name: ")
+if __name__ == "__main__":
+    username = input("Enter your name: ")
     print(greet(username))

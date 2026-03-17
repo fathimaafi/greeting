@@ -30,16 +30,13 @@ jobs:
 
       - name: Run Pylint
         id: pylint
-        continue-on-error: true
         run: |
-          pylint greet.py test_greet.py 2>&1 | tee pylint-results.txt
+          pylint greeter.py test_greet.py 2>&1 | tee pylint-results.txt; exit ${PIPESTATUS[0]}
 
       - name: Run tests
         id: tests
-        continue-on-error: true
         run: |
-          python -m pytest test_greet.py -v 2>&1 | tee test-results.txt
-          cat test-results.txt
+          python -m pytest test_greet.py -v 2>&1 | tee test-results.txt; exit ${PIPESTATUS[0]}
 
       - name: Ensure test results file exists
         if: always()
