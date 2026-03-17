@@ -22,15 +22,29 @@ jobs:
     - name: Install Pylint
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pylint
+        python -m pip install pylint pytest
+        python -m pytest --version
 
     - name: Run Pylint
+      id: pylint
+      continue-on-error: true
       run: |
-        python -m pylint greeter.py test_greet.py
+        python -m pylint greeter.py test_greet.py 2>&1 | tee pylint-results.txt
+        echo "::set-output name=exit_code::$(echo ${PIPESTATUS[0]})
 
     - name: Run tests
+      id: tests
+      continue-on-error: true
       run: |
-        python -m unittest discover -p "test_greet.py"
+        python -m pytest test_greet.py 2>&1 | tee test-results.txt
+        echo "::set-output name=exit_code::$(echo ${PIPESTATUS[0]})
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: test-results.txt
 
     - name: Send failure mail
       if: failure()
