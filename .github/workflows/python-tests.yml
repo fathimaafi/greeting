@@ -27,13 +27,11 @@ jobs:
 
     - name: Run Pylint
       id: pylint
-      continue-on-error: true
       run: |
         pylint greeter.py test_greet.py 2>&1 | tee pylint-results.txt
 
     - name: Run tests
       id: tests
-      continue-on-error: true
       run: |
         python -m pytest test_greet.py -v 2>&1 | tee test-results.txt
         cat test-results.txt
