@@ -31,9 +31,10 @@ jobs:
         id: pylint
         if: always()
         run: |
-          echo "=== PYLINT RESULTS ==="  > test-results.txt
+          echo "=== PYLINT RESULTS ==" > test-results.txt
           pylint greeter.py test_greet.py >> test-results.txt 2>&1
           echo "Pylint exit code: $?" >> test-results.txt
+        continue-on-error: true
 
       - name: Run tests
         id: tests
@@ -42,6 +43,11 @@ jobs:
           echo "=== TEST RESULTS ==" >> test-results.txt
           python -m unittest discover -s . -p test_greet.py -v >> test-results.txt 2>&1
           echo "Exit code: $?" >> test-results.txt; exit $?
+
+      - name: Check Pylint result
+        if: always()
+        run: |
+          if [ "${{ steps.pylint.outcome }}" == "failure" ]; then exit 1; fi
           cat test-results.txt
       
       - name: Upload a Test results artifact
@@ -54,6 +60,13 @@ jobs:
           retention-days: 90
 
       - name: Send failure email
+        if: failure()
+        env:
+          RECIPIENT: ${{ secrets.MAIL_RECIPIENT }}
+        run: |
+          if [ -z "$RECIPIENT" ]; then echo "ERROR: MAIL_RECIPIENT secret is not set"; exit 1; fi
+        
+      - name: Send failure email action
         if: failure()
         uses: dawidd6/action-send-mail@v3
         with:

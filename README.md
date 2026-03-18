@@ -59,11 +59,39 @@ You can also manually run the GitHub Actions workflow from the GitHub repository
 If the CI workflow fails (either during linting or unit tests), an automated notification email will be sent to the designated recipient.
 
 To enable this feature, the following **Secrets** must be configured in the GitHub repository (`Settings > Secrets and variables > Actions`):
-- `EMAIL_USERNAME`: The SMTP sender email address (e.g., a Gmail address).
-- `EMAIL_PASSWORD`: The app password or credentials for the SMTP account.
-- `EMAIL_RECIPIENT`: The email address that should receive the failure reports.
+- `MAIL_USERNAME`: The SMTP sender email address (e.g., a Gmail address).
+- `MAIL_PASSWORD`: The Gmail App Password (generated at Google Account → Security → 2-Step Verification → App passwords).
+- `MAIL_RECIPIENT`: The email address that should receive the failure reports.
 
 The workflow uses these secrets with the `dawidd6/action-send-mail` action to provide immediate alerts for failed builds.
+
+## Artifacts
+The workflow uploads a `test-results.txt` artifact after every run containing the Pylint and test output.
+
+### What the Artifact Contains
+The artifact file is structured in two sections:
+```
+=== PYLINT RESULTS ===
+<pylint output and score>
+Pylint exit code: <code>
+
+=== TEST RESULTS ===
+<unittest output with pass/fail details>
+Exit code: <code>
+```
+
+### How to Access Artifacts
+1. Navigate to the **Actions** tab in your GitHub repository.
+2. Click on the workflow run you want to inspect.
+3. Scroll down to the **Artifacts** section at the bottom of the run summary page.
+4. Click **My Artifact for test results** to download the zip file.
+5. Extract the zip and open `test-results.txt` to view the full Pylint and test output.
+
+### Interpreting the Artifact
+- **Pylint exit code 0** — no linting issues found, score is 10.00/10.
+- **Pylint exit code 16** — linting issues found, score is below 10.00/10 with details of each issue.
+- **Test exit code 0** — all tests passed.
+- **Test exit code 1** — one or more tests failed, with `AssertionError` details showing expected vs actual values.
 
 ## Pull Requests and CI
 To maintain the quality of the project, all changes should be submitted through Pull Requests (PRs).
