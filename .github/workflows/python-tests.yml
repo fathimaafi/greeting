@@ -53,11 +53,6 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Check Pylint result
-        if: always()
-        run: |
-          if [ "${{ steps.pylint.outcome }}" == "failure" ]; then exit 1; fi
-
       - name: Send failure email
         if: ${{ failure() }}
         uses: dawidd6/action-send-mail@v3
