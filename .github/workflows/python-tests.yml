@@ -37,7 +37,7 @@ jobs:
         id: tests
         if: always()
         run: |
-          python -m unittest discover -s . -p test_greet.py -v > test-results.txt 2>&1; exit ${PIPESTATUS[0]}
+          python -m unittest discover -s . -p test_greet.py -v > test-results.txt 2>&1; echo "Exit code: $?" >> test-results.txt; exit $?
       
       - name: Upload a Test results artifact
         if: always() 
