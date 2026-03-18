@@ -29,13 +29,15 @@ jobs:
 
       - name: Run Pylint
         id: pylint
+        if: always()
         run: |
           pylint greeter.py test_greet.py
 
       - name: Run tests
         id: tests
+        if: always()
         run: |
-          python -m unittest discover -s . -p test_greet.py -v > test-results.txt || true
+          python -m unittest discover -s . -p test_greet.py -v > test-results.txt 2>&1; exit ${PIPESTATUS[0]}
       
       - name: Upload a Test results artifact
         if: always() 
