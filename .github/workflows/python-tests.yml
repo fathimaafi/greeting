@@ -31,13 +31,18 @@ jobs:
         id: pylint
         if: always()
         run: |
-          pylint greeter.py test_greet.py
+          echo "=== PYLINT RESULTS ==="  > test-results.txt
+          pylint greeter.py test_greet.py >> test-results.txt 2>&1
+          echo "Pylint exit code: $?" >> test-results.txt
 
       - name: Run tests
         id: tests
         if: always()
         run: |
-          python -m unittest discover -s . -p test_greet.py -v > test-results.txt 2>&1; echo "Exit code: $?" >> test-results.txt; exit $?
+          echo "=== TEST RESULTS ==" >> test-results.txt
+          python -m unittest discover -s . -p test_greet.py -v >> test-results.txt 2>&1
+          echo "Exit code: $?" >> test-results.txt; exit $?
+          cat test-results.txt
       
       - name: Upload a Test results artifact
         if: always() 
