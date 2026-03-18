@@ -33,7 +33,9 @@ jobs:
         run: |
           echo "=== PYLINT RESULTS ==" > test-results.txt
           pylint greeter.py test_greet.py >> test-results.txt 2>&1
-          echo "Pylint exit code: $?" >> test-results.txt
+          PYLINT_EXIT=$?
+          echo "Pylint exit code: $PYLINT_EXIT" >> test-results.txt
+          echo "pylint_exit=$PYLINT_EXIT" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Run tests
@@ -52,6 +54,14 @@ jobs:
           path: test-results.txt
           if-no-files-found: error
           retention-days: 90
+
+      - name: Check Pylint result
+        if: always()
+        run: |
+          if [ "${{ steps.pylint.outputs.pylint_exit }}" != "0" ]; then
+            echo "Pylint failed with exit code ${{ steps.pylint.outputs.pylint_exit }}"
+            exit 1
+          fi
 
       - name: Send failure email
         if: ${{ failure() }}
