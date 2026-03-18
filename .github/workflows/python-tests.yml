@@ -33,13 +33,16 @@ jobs:
         continue-on-error: true
         run: |
           echo "=== PYLINT RESULTS ===" > test-results.txt
-          pylint greeter.py test_greet.py >> test-results.txt 2>&1; PYLINT_EXIT=$?
-          if [ $PYLINT_EXIT -eq 0 ]; then
+          set +e
+          pylint greeter.py test_greet.py >> test-results.txt 2>&1
+          PYLINT_EXIT=$?
+          set -e
+          if [ "$PYLINT_EXIT" -eq 0 ]; then
             echo "Pylint status: PASSED" >> test-results.txt
           else
             echo "Pylint status: FAILED (exit code: $PYLINT_EXIT)" >> test-results.txt
           fi
-          echo $PYLINT_EXIT > pylint-exit-code.txt
+          echo "$PYLINT_EXIT" > pylint-exit-code.txt
 
       - name: Run tests
         id: tests
@@ -48,14 +51,16 @@ jobs:
         run: |
           echo "" >> test-results.txt
           echo "=== TEST RESULTS ===" >> test-results.txt
+          set +e
           python -m unittest discover -s . -p test_greet.py -v >> test-results.txt 2>&1
           TEST_EXIT=$?
-          if [ $TEST_EXIT -eq 0 ]; then
+          set -e
+          if [ "$TEST_EXIT" -eq 0 ]; then
             echo "Test status: PASSED" >> test-results.txt
           else
             echo "Test status: FAILED (exit code: $TEST_EXIT)" >> test-results.txt
           fi
-          echo $TEST_EXIT > test-exit-code.txt
+          echo "$TEST_EXIT" > test-exit-code.txt
 
       - name: Write overall status
         if: always()
