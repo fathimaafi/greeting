@@ -30,36 +30,68 @@ jobs:
       - name: Run Pylint
         id: pylint
         if: always()
+        working-directory: greeter
+        continue-on-error: true
         run: |
-          echo "=== PYLINT RESULTS ==" > test-results.txt
+          echo "=== PYLINT RESULTS ===" > test-results.txt
           pylint greeter.py test_greet.py >> test-results.txt 2>&1
           PYLINT_EXIT=$?
-          echo "Pylint exit code: $PYLINT_EXIT" >> test-results.txt
-          echo "pylint_exit=$PYLINT_EXIT" >> $GITHUB_OUTPUT
-        continue-on-error: true
+          if [ $PYLINT_EXIT -eq 0 ]; then
+            echo "Pylint status: PASSED" >> test-results.txt
+          else
+            echo "Pylint status: FAILED (exit code: $PYLINT_EXIT)" >> test-results.txt
+          fi
+          echo $PYLINT_EXIT > pylint-exit-code.txt
 
       - name: Run tests
         id: tests
         if: always()
+        working-directory: greeter
+        continue-on-error: true
         run: |
-          echo "=== TEST RESULTS ==" >> test-results.txt
+          echo "" >> test-results.txt
+          echo "=== TEST RESULTS ===" >> test-results.txt
           python -m unittest discover -s . -p test_greet.py -v >> test-results.txt 2>&1
-          echo "Exit code: $?" >> test-results.txt; exit $?
+          TEST_EXIT=$?
+          if [ $TEST_EXIT -eq 0 ]; then
+            echo "Test status: PASSED" >> test-results.txt
+          else
+            echo "Test status: FAILED (exit code: $TEST_EXIT)" >> test-results.txt
+          fi
+          echo $TEST_EXIT > test-exit-code.txt
 
-      - name: Upload a Test results artifact
+      - name: Write overall status
+        if: always()
+        working-directory: greeter
+        run: |
+          PYLINT_EXIT=$(cat pylint-exit-code.txt 2>/dev/null || echo "1")
+          TEST_EXIT=$(cat test-exit-code.txt 2>/dev/null || echo "1")
+          echo "" >> test-results.txt
+          echo "=== OVERALL STATUS ===" >> test-results.txt
+          if [ "$PYLINT_EXIT" = "0" ] && [ "$TEST_EXIT" = "0" ]; then
+            echo "Result: SUCCESS - All checks passed" >> test-results.txt
+          else
+            echo "Result: FAILED" >> test-results.txt
+            [ "$PYLINT_EXIT" != "0" ] && echo "  - Pylint failed with exit code $PYLINT_EXIT" >> test-results.txt
+            [ "$TEST_EXIT" != "0" ] && echo "  - Tests failed with exit code $TEST_EXIT" >> test-results.txt
+          fi
+
+      - name: Upload test results artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: My Artifact for test results
-          path: test-results.txt
+          path: greeter/test-results.txt
           if-no-files-found: error
           retention-days: 90
 
-      - name: Check Pylint result
+      - name: Fail job if Pylint or tests failed
         if: always()
         run: |
-          if [ "${{ steps.pylint.outputs.pylint_exit }}" != "0" ]; then
-            echo "Pylint failed with exit code ${{ steps.pylint.outputs.pylint_exit }}"
+          PYLINT_EXIT=$(cat greeter/pylint-exit-code.txt 2>/dev/null || echo "1")
+          TEST_EXIT=$(cat greeter/test-exit-code.txt 2>/dev/null || echo "1")
+          if [ "$PYLINT_EXIT" != "0" ] || [ "$TEST_EXIT" != "0" ]; then
+            echo "Job failed: Pylint exit=$PYLINT_EXIT, Test exit=$TEST_EXIT"
             exit 1
           fi
 
