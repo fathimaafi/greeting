@@ -25,15 +25,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pylint pytest
-          python -m pytest --version
+          pip install -r requirements.txt
 
       - name: Run Pylint
         id: pylint
+        if: always()
         continue-on-error: true
         run: |
           echo "=== PYLINT RESULTS ===" > test-results.txt
-          pylint greeter.py test_greet.py 2>&1 | tee pylint-results.txt
+          pylint greeter.py test_greet.py >> test-results.txt 2>&1
           PYLINT_EXIT=$?
           if [ $PYLINT_EXIT -eq 0 ]; then
             echo "Pylint status: PASSED" >> test-results.txt
@@ -44,12 +44,12 @@ jobs:
 
       - name: Run tests
         id: tests
+        if: always()
         continue-on-error: true
         run: |
           echo "" >> test-results.txt
           echo "=== TEST RESULTS ===" >> test-results.txt
-          python -m pytest test_greet.py -v 2>&1 | tee test-results.txt
-          cat test-results.txt >> test-results.txt
+          python -m unittest discover -s . -p test_greet.py -v >> test-results.txt 2>&1
           TEST_EXIT=$?
           if [ $TEST_EXIT -eq 0 ]; then
             echo "Test status: PASSED" >> test-results.txt
@@ -57,6 +57,21 @@ jobs:
             echo "Test status: FAILED (exit code: $TEST_EXIT)" >> test-results.txt
           fi
           echo $TEST_EXIT > test-exit-code.txt
+
+      - name: Write overall status
+        if: always()
+        run: |
+          PYLINT_EXIT=$(cat pylint-exit-code.txt 2>/dev/null || echo "1")
+          TEST_EXIT=$(cat test-exit-code.txt 2>/dev/null || echo "1")
+          echo "" >> test-results.txt
+          echo "=== OVERALL STATUS ===" >> test-results.txt
+          if [ "$PYLINT_EXIT" = "0" ] && [ "$TEST_EXIT" = "0" ]; then
+            echo "Result: SUCCESS - All checks passed" >> test-results.txt
+          else
+            echo "Result: FAILED" >> test-results.txt
+            [ "$PYLINT_EXIT" != "0" ] && echo "  - Pylint failed with exit code $PYLINT_EXIT" >> test-results.txt
+            [ "$TEST_EXIT" != "0" ] && echo "  - Tests failed with exit code $TEST_EXIT" >> test-results.txt
+          fi
 
       - name: Upload test results artifact
         if: always()
