@@ -65,15 +65,6 @@ To enable this feature, the following **Secrets** must be configured in the GitH
 
 The workflow uses these secrets with the `dawidd6/action-send-mail` action to provide immediate alerts for failed builds.
 
-### Workflow Artifacts
-For every workflow run (regardless of whether it succeeded or failed), detailed test and linting results are saved as artifacts. These are useful for reviewing long output logs or keeping a record of the run.
-
-To access artifacts:
-1. Navigate to the **Actions** tab in your repository.
-2. Select the specific workflow run you want to investigate.
-3. Scroll down to the **Artifacts** section at the bottom of the run summary page.
-4. Click on **test-results** to download a ZIP file containing the full Pylint and test output log (`test-results.txt`).
-
 ## Pull Requests and CI
 To maintain the quality of the project, all changes should be submitted through Pull Requests (PRs).
 

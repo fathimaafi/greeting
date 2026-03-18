@@ -25,41 +25,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pylint pytest
-          python -m pytest --version
+          pip install pylint
 
       - name: Run Pylint
         id: pylint
         run: |
-          pylint greeter.py test_greet.py 2>&1 | tee pylint-results.txt; exit ${PIPESTATUS[0]}
+          pylint greeter.py test_greet.py
 
       - name: Run tests
         id: tests
         run: |
-          python -m pytest test_greet.py -v 2>&1 | tee test-results.txt; exit ${PIPESTATUS[0]}
+          python -m unittest discover -s . -p test_greet.py -v
 
-      - name: Ensure test results file exists
-        if: always()
-        run: |
-          touch test-results.txt
-          if [ -f pylint-results.txt ]; then
-            echo "=== PYLINT RESULTS ===" >> test-results.txt
-            cat pylint-results.txt >> test-results.txt
-          fi
-
-      - name: Debug file location
-        if: always()
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -la
-          find . -name 'test-results.txt'
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results.txt
 
       - name: Send failure email
         if: failure()
