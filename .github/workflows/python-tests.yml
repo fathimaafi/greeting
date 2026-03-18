@@ -35,8 +35,16 @@ jobs:
       - name: Run tests
         id: tests
         run: |
-          python -m unittest discover -s . -p test_greet.py -v
-
+          python -m unittest discover -s . -p test_greet.py -v > test-results.txt || true
+      
+      - name: Upload a Test results artifact
+        if: always() 
+        uses: actions/upload-artifact@v4
+        with:
+          name: My Artifact for test results
+          path: test-results.txt
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Send failure email
         if: failure()
