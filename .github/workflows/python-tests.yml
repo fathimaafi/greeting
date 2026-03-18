@@ -44,14 +44,8 @@ jobs:
           python -m unittest discover -s . -p test_greet.py -v >> test-results.txt 2>&1
           echo "Exit code: $?" >> test-results.txt; exit $?
 
-      - name: Check Pylint result
-        if: always()
-        run: |
-          if [ "${{ steps.pylint.outcome }}" == "failure" ]; then exit 1; fi
-          cat test-results.txt
-      
       - name: Upload a Test results artifact
-        if: always() 
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: My Artifact for test results
@@ -59,15 +53,13 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Send failure email
-        if: failure()
-        env:
-          RECIPIENT: ${{ secrets.MAIL_RECIPIENT }}
+      - name: Check Pylint result
+        if: always()
         run: |
-          if [ -z "$RECIPIENT" ]; then echo "ERROR: MAIL_RECIPIENT secret is not set"; exit 1; fi
-        
-      - name: Send failure email action
-        if: failure()
+          if [ "${{ steps.pylint.outcome }}" == "failure" ]; then exit 1; fi
+
+      - name: Send failure email
+        if: ${{ failure() }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
